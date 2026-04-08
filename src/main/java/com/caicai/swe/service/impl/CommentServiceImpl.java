@@ -42,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
         // 查询总数
         Long total = commentMapper.selectCountByProductId(productId);
 
-        return PageResult.of(total, list);
+        return PageResult.of(list, total, page, size);
     }
 
     @Override

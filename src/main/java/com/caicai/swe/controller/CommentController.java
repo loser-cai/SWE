@@ -4,6 +4,7 @@ import com.caicai.swe.common.PageResult;
 import com.caicai.swe.common.Result;
 import com.caicai.swe.dto.CommentAddDTO;
 import com.caicai.swe.service.CommentService;
+import com.caicai.swe.util.UserContext;
 import com.caicai.swe.vo.CommentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +25,7 @@ public class CommentController {
     @PostMapping("/add")
     public Result<Long> addComment(@RequestBody CommentAddDTO dto) {
         try {
-            // TODO: 从session或token中获取当前用户ID
-            Long userId = 1L; // 临时使用固定用户ID
+            Long userId = UserContext.getUserId();
             Long commentId = commentService.addComment(dto, userId);
             return Result.success("评论成功", commentId);
         } catch (Exception e) {

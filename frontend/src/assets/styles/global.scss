@@ -1,4 +1,5 @@
-@import './variables.scss';
+@use 'sass:color';
+@use './variables.scss' as *;
 
 * {
   margin: 0;
@@ -23,7 +24,7 @@ a {
   cursor: pointer;
 
   &:hover {
-    color: lighten($primary-color, 10%);
+    color: color.adjust($primary-color, $lightness: 10%);
   }
 }
 
@@ -64,7 +65,7 @@ ol {
     color: white;
 
     &:hover {
-      background: lighten($primary-color, 10%);
+      background: color.adjust($primary-color, $lightness: 10%);
     }
   }
 
@@ -73,7 +74,7 @@ ol {
     color: white;
 
     &:hover {
-      background: lighten($success-color, 10%);
+      background: color.adjust($success-color, $lightness: 10%);
     }
   }
 
@@ -82,7 +83,7 @@ ol {
     color: white;
 
     &:hover {
-      background: lighten($danger-color, 10%);
+      background: color.adjust($danger-color, $lightness: 10%);
     }
   }
 

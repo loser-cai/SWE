@@ -49,6 +49,18 @@ const routes: RouteRecordRaw[] = [
     name: 'Search',
     component: () => import('@/views/Search.vue'),
     meta: { title: '搜索' }
+  },
+  {
+    path: '/messages',
+    name: 'MessageList',
+    component: () => import('@/views/messages/MessageList.vue'),
+    meta: { title: '消息中心', requiresAuth: true }
+  },
+  {
+    path: '/messages/:userId',
+    name: 'MessageChat',
+    component: () => import('@/views/messages/MessageChat.vue'),
+    meta: { title: '聊天', requiresAuth: true }
   }
 ]
 

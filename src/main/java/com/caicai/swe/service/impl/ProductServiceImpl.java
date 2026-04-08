@@ -64,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
                 dto.getUserId()
         );
 
-        return PageResult.of(total, list);
+        return PageResult.of(list, total, dto.getPage(), dto.getSize());
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.caicai.swe.dto.ProductPublishDTO;
 import com.caicai.swe.dto.ProductQueryDTO;
 import com.caicai.swe.entity.Product;
 import com.caicai.swe.service.ProductService;
+import com.caicai.swe.util.UserContext;
 import com.caicai.swe.vo.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,7 @@ public class ProductController {
     @PostMapping("/publish")
     public Result<Long> publish(@RequestBody ProductPublishDTO dto) {
         try {
-            // TODO: 从session或token中获取当前用户ID
-            Long userId = 1L; // 临时使用固定用户ID
+            Long userId = UserContext.getUserId();
             Long productId = productService.publish(dto, userId);
             return Result.success("发布成功", productId);
         } catch (Exception e) {

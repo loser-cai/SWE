@@ -147,5 +147,33 @@ VALUES (2, 1),
        (1, 3);
 
 -- ========================================
+-- 消息表
+-- ========================================
+CREATE TABLE IF NOT EXISTS `message`
+(
+    `id`          bigint       NOT NULL AUTO_INCREMENT COMMENT '消息ID',
+    `sender_id`   bigint       NOT NULL COMMENT '发送者ID',
+    `receiver_id` bigint       NOT NULL COMMENT '接收者ID',
+    `product_id`  bigint       DEFAULT NULL COMMENT '关联商品ID',
+    `content`     varchar(500) NOT NULL COMMENT '消息内容',
+    `is_read`     tinyint      DEFAULT '0' COMMENT '是否已读 0:未读 1:已读',
+    `create_time` datetime     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted`     tinyint      DEFAULT '0' COMMENT '是否删除 0:否 1:是',
+    PRIMARY KEY (`id`),
+    KEY `idx_sender_id` (`sender_id`),
+    KEY `idx_receiver_id` (`receiver_id`),
+    KEY `idx_product_id` (`product_id`),
+    KEY `idx_create_time` (`create_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='消息表';
+
+-- 插入测试消息
+INSERT INTO `message` (`sender_id`, `receiver_id`, `product_id`, `content`, `is_read`)
+VALUES (2, 1, 1, '你好，这个iPhone还在吗？', 0),
+       (1, 2, 1, '在的，你可以约时间看看', 1),
+       (2, 1, 1, '好的，那我们周末见', 0);
+
+-- ========================================
 -- 数据库初始化完成
 -- ========================================

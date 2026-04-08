@@ -4,11 +4,12 @@ import type { UserVO } from '@/types/user'
 import { storage } from '@/utils/storage'
 
 export const useUserStore = defineStore('user', () => {
-  const userInfo = ref<UserVO | null>(null)
+  const userInfo = ref<UserVO | null>(storage.get('userInfo') || null)
   const token = ref<string>(storage.get('token') || '')
 
   const setUserInfo = (info: UserVO) => {
     userInfo.value = info
+    storage.set('userInfo', info)
   }
 
   const setToken = (newToken: string) => {
@@ -20,6 +21,7 @@ export const useUserStore = defineStore('user', () => {
     userInfo.value = null
     token.value = ''
     storage.remove('token')
+    storage.remove('userInfo')
   }
 
   const isLoggedIn = () => {

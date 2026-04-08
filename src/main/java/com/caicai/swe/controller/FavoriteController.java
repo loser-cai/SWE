@@ -4,6 +4,7 @@ import com.caicai.swe.common.Result;
 import com.caicai.swe.entity.Favorite;
 import com.caicai.swe.mapper.FavoriteMapper;
 import com.caicai.swe.service.ProductService;
+import com.caicai.swe.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +29,7 @@ public class FavoriteController {
     @PostMapping("/add")
     public Result<Boolean> addFavorite(@RequestParam Long productId) {
         try {
-            // TODO: 从session或token中获取当前用户ID
-            Long userId = 1L; // 临时使用固定用户ID
+            Long userId = UserContext.getUserId();
 
             // 检查是否已收藏
             Favorite existFavorite = favoriteMapper.selectByUserIdAndProductId(userId, productId);
@@ -58,8 +58,7 @@ public class FavoriteController {
     @DeleteMapping("/remove")
     public Result<Boolean> removeFavorite(@RequestParam Long productId) {
         try {
-            // TODO: 从session或token中获取当前用户ID
-            Long userId = 1L; // 临时使用固定用户ID
+            Long userId = UserContext.getUserId();
 
             int result = favoriteMapper.deleteByUserIdAndProductId(userId, productId);
             if (result > 0) {
@@ -79,9 +78,7 @@ public class FavoriteController {
     @GetMapping("/list")
     public Result<List<Long>> getFavoriteList() {
         try {
-            // TODO: 从session或token中获取当前用户ID
-            Long userId = 1L; // 临时使用固定用户ID
-
+            Long userId = UserContext.getUserId();
             List<Long> productIds = favoriteMapper.selectProductIdsByUserId(userId);
             return Result.success(productIds);
         } catch (Exception e) {

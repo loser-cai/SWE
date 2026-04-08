@@ -1,47 +1,113 @@
-// 颜色变量
-$primary-color: #409eff;
-$success-color: #67c23a;
-$warning-color: #e6a23c;
-$danger-color: #f56c6c;
+// 主题色
+$primary-color: #667eea;
+$primary-color-light: #764ba2;
+$primary-color-dark: #5a67d8;
+
+// 功能色
+$success-color: #48bb78;
+$warning-color: #ed8936;
+$danger-color: #f56565;
 $info-color: #909399;
 
+// 渐变色
+$gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$gradient-success: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+$gradient-warning: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+$gradient-danger: linear-gradient(135deg, #f56565 0%, #ed64a6 100%);
+$gradient-info: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+
 // 文字颜色
-$text-primary: #303133;
-$text-regular: #606266;
-$text-secondary: #909399;
-$text-placeholder: #c0c4cc;
+$text-primary: #2d3748;
+$text-regular: #4a5568;
+$text-secondary: #718096;
+$text-placeholder: #a0aec0;
+$text-light: #cbd5e0;
 
 // 边框颜色
-$border-color: #dcdfe6;
-$border-color-light: #e4e7ed;
-$border-color-lighter: #ebeef5;
-$border-color-extra-light: #f2f6fc;
+$border-color: #e2e8f0;
+$border-color-light: #edf2f7;
+$border-color-lighter: #f7fafc;
 
 // 背景颜色
 $background-color: #f5f7fa;
 $background-color-light: #fafafa;
+$background-color-gradient: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
 
 // 圆角
-$border-radius: 4px;
-$border-radius-large: 8px;
+$border-radius-sm: 6px;
+$border-radius: 10px;
+$border-radius-md: 12px;
+$border-radius-lg: 16px;
+$border-radius-xl: 20px;
+$border-radius-2xl: 24px;
 
 // 阴影
-$box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-$box-shadow-light: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+$box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+$box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+$box-shadow-md: 0 8px 30px rgba(0, 0, 0, 0.12);
+$box-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+$box-shadow-primary: 0 8px 20px rgba(102, 126, 234, 0.4);
+$box-shadow-success: 0 8px 20px rgba(72, 187, 120, 0.4);
+$box-shadow-warning: 0 8px 20px rgba(237, 137, 54, 0.4);
+$box-shadow-danger: 0 8px 20px rgba(245, 101, 101, 0.4);
 
 // 间距
 $spacing-xs: 4px;
 $spacing-sm: 8px;
-$spacing-md: 16px;
-$spacing-lg: 24px;
-$spacing-xl: 32px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+$spacing-3xl: 40px;
+$spacing-4xl: 48px;
 
 // 字体
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-size-xs: 11px;
+$font-size-sm: 12px;
 $font-size-base: 14px;
-$font-size-small: 12px;
-$font-size-large: 16px;
-$font-size-extra-large: 20px;
+$font-size-md: 15px;
+$font-size-lg: 16px;
+$font-size-xl: 18px;
+$font-size-2xl: 20px;
+$font-size-3xl: 24px;
+$font-size-4xl: 28px;
+$font-size-5xl: 32px;
+
+// 字重
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
 
 // 布局
-$header-height: 60px;
-$sidebar-width: 200px;
+$header-height: 80px;
+$sidebar-width: 240px;
+$max-width: 1200px;
+
+// 过渡
+$transition-fast: 0.2s ease;
+$transition-base: 0.3s ease;
+$transition-slow: 0.4s ease;
+
+// Z-index
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// 颜色透明度
+$alpha-light: 0.95;
+$alpha-hover: 0.1;
+$alpha-active: 0.2;
+
+// 响应式断点
+$breakpoint-xs: 480px;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-2xl: 1600px;

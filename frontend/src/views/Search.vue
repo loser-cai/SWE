@@ -1,11 +1,11 @@
 <template>
-  <div class="home">
+  <div class="search">
     <el-container>
       <el-header>
         <div class="header-content">
-          <div class="logo">
+          <router-link to="/" class="logo">
             <h1>校园二手交易</h1>
-          </div>
+          </router-link>
           <div class="header-right">
             <el-input
               v-model="searchKeyword"
@@ -14,7 +14,6 @@
               @keyup.enter="handleSearch"
               style="width: 300px; margin-right: 20px"
             />
-            <router-link to="/products" class="nav-link">商品列表</router-link>
             <router-link v-if="userStore.isLoggedIn()" to="/products/publish" class="nav-link">
               发布商品
             </router-link>
@@ -22,39 +21,33 @@
               个人中心
             </router-link>
             <router-link v-else to="/login" class="nav-link">登录</router-link>
-            <router-link v-if="!userStore.isLoggedIn()" to="/register" class="nav-link">
-              注册
-            </router-link>
-            <el-button v-else @click="handleLogout" type="danger" size="small">退出</el-button>
           </div>
         </div>
       </el-header>
 
       <el-main>
-        <div class="banner">
-          <h2>欢迎来到校园二手交易平台</h2>
-          <p>让闲置物品流转更高效、更安全</p>
+        <div class="search-bar">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="请输入搜索关键字"
+            size="large"
+            @keyup.enter="handleSearch"
+          >
+            <template #append>
+              <el-button icon="Search" @click="handleSearch">搜索</el-button>
+            </template>
+          </el-input>
         </div>
 
-        <div class="categories">
-          <h3>商品分类</h3>
-          <div class="category-list">
-            <div
-              v-for="category in appStore.categories"
-              :key="category.id"
-              class="category-item"
-              @click="handleCategoryClick(category.id)"
-            >
-              {{ category.name }}
-            </div>
-          </div>
-        </div>
+        <div v-loading="loading" class="search-results">
+          <h3 v-if="searchKeyword">
+            搜索结果："{{ searchKeyword }}" (共 {{ total }} 条)
+          </h3>
+          <h3 v-else>热门搜索</h3>
 
-        <div class="latest-products">
-          <h3>最新发布</h3>
           <div class="product-grid">
             <div
-              v-for="product in latestProducts"
+              v-for="product in products"
               :key="product.id"
               class="product-card"
               @click="goToDetail(product.id)"
@@ -73,10 +66,21 @@
               </div>
             </div>
           </div>
-          <div class="load-more">
-            <router-link to="/products">
-              <el-button type="primary">查看更多</el-button>
-            </router-link>
+
+          <div v-if="!loading && products.length === 0" class="empty-state">
+            <el-empty description="暂无搜索结果" />
+          </div>
+
+          <div v-if="total > 0" class="pagination">
+            <el-pagination
+              v-model:current-page="currentPage"
+              v-model:page-size="pageSize"
+              :total="total"
+              :page-sizes="[10, 20, 50]"
+              layout="total, sizes, prev, pager, next, jumper"
+              @size-change="handleSizeChange"
+              @current-change="handlePageChange"
+            />
           </div>
         </div>
       </el-main>
@@ -86,19 +90,21 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { useRouter, useRoute } from 'vue-router'
 import { productApi } from '@/api/product'
 import { useUserStore } from '@/stores/user'
-import { useAppStore } from '@/stores/app'
 import type { ProductVO } from '@/types/product'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
-const appStore = useAppStore()
 
+const loading = ref(false)
+const products = ref<ProductVO[]>([])
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(10)
 const searchKeyword = ref('')
-const latestProducts = ref<ProductVO[]>([])
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
@@ -106,40 +112,54 @@ const formatDate = (dateStr: string) => {
 }
 
 const handleSearch = () => {
-  if (searchKeyword.value.trim()) {
-    router.push({ path: '/search', query: { keyword: searchKeyword.value } })
+  if (!searchKeyword.value.trim()) {
+    ElMessage.warning('请输入搜索关键字')
+    return
   }
+  currentPage.value = 1
+  loadProducts()
 }
 
-const handleCategoryClick = (categoryId: number) => {
-  router.push({ path: '/products', query: { categoryId } })
+const handleSizeChange = (size: number) => {
+  pageSize.value = size
+  currentPage.value = 1
+  loadProducts()
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+  loadProducts()
 }
 
 const goToDetail = (id: number) => {
   router.push(`/products/${id}`)
 }
 
-const handleLogout = () => {
-  userStore.logout()
-  ElMessage.success('已退出登录')
-}
+const loadProducts = async () => {
+  if (!searchKeyword.value.trim()) return
 
-const loadLatestProducts = async () => {
+  loading.value = true
   try {
-    const result = await productApi.getList({ page: 1, size: 8, status: 1 })
-    latestProducts.value = result.records
+    const result = await productApi.search(searchKeyword.value, currentPage.value, pageSize.value)
+    products.value = result.records
+    total.value = result.total
   } catch (error) {
-    console.error('加载商品失败:', error)
+    console.error('搜索失败:', error)
+  } finally {
+    loading.value = false
   }
 }
 
 onMounted(() => {
-  loadLatestProducts()
+  if (route.query.keyword) {
+    searchKeyword.value = route.query.keyword as string
+    loadProducts()
+  }
 })
 </script>
 
 <style scoped lang="scss">
-.home {
+.search {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
 }
@@ -162,15 +182,19 @@ onMounted(() => {
     width: 100%;
   }
 
-  .logo h1 {
-    font-size: 26px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-    letter-spacing: -0.5px;
+  .logo {
+    text-decoration: none;
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
   }
 
   .header-right {
@@ -200,111 +224,55 @@ onMounted(() => {
   padding: 30px 20px;
 }
 
-.banner {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  color: white;
-  padding: 60px 40px;
-  border-radius: 20px;
-  text-align: center;
-  margin-bottom: 40px;
-  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-    animation: pulse 8s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 0.5;
-    }
-    50% {
-      transform: scale(1.1);
-      opacity: 0.8;
-    }
-  }
-
-  h2 {
-    font-size: 42px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    position: relative;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  }
-
-  p {
-    font-size: 20px;
-    opacity: 0.95;
-    position: relative;
-  }
-}
-
-.categories {
+.search-bar {
   background: white;
-  padding: 30px;
-  border-radius: 16px;
-  margin-bottom: 40px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  padding: 32px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
-  h3 {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: #2d3748;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  :deep(.el-input) {
+    .el-input__wrapper {
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      padding: 16px 20px;
+      transition: all 0.3s ease;
 
-    &::before {
-      content: '';
-      width: 4px;
-      height: 24px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 2px;
-    }
-  }
+      &:hover {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      }
 
-  .category-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
+      &.is-focus {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+      }
 
-  .category-item {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    color: #4a5568;
-    border: 2px solid transparent;
-
-    &:hover {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      .el-input__inner {
+        font-size: 16px;
+        font-weight: 500;
+      }
     }
 
-    &:active {
-      transform: translateY(0);
+    .el-input-group__append {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 0 24px;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+
+      .el-button {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+      }
     }
   }
 }
 
-.latest-products {
+.search-results {
   h3 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     margin-bottom: 24px;
     color: #2d3748;
@@ -423,22 +391,42 @@ onMounted(() => {
     }
   }
 
-  .load-more {
-    text-align: center;
-    padding: 20px 0;
+  .empty-state {
+    padding: 80px 0;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
 
-    :deep(.el-button) {
-      padding: 12px 32px;
-      font-size: 16px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border: none;
-      font-weight: 600;
-      transition: all 0.3s ease;
+  .pagination {
+    display: flex;
+    justify-content: center;
+    padding: 30px 0;
 
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    :deep(.el-pagination) {
+      .el-pager li {
+        border-radius: 8px;
+        margin: 0 4px;
+        transition: all 0.3s ease;
+
+        &.is-active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+        }
+
+        &:hover {
+          color: #667eea;
+        }
+      }
+
+      .btn-prev,
+      .btn-next {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: #667eea;
+        }
       }
     }
   }
