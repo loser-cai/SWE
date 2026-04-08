@@ -7,6 +7,7 @@ import com.caicai.swe.dto.ProductQueryDTO;
 import com.caicai.swe.entity.Product;
 import com.caicai.swe.mapper.ProductMapper;
 import com.caicai.swe.service.ProductService;
+import com.caicai.swe.util.UserContext;
 import com.caicai.swe.vo.ProductVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,12 +70,40 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Boolean updateProduct(Product product) {
+        // 获取商品信息
+        ProductVO productVO = productMapper.selectVOById(product.getId());
+        if (productVO == null) {
+            throw new RuntimeException(ResultCode.PRODUCT_NOT_EXIST.getMessage());
+        }
+        
+        // 检查权限：只有商品的所有者才能更新
+        Long currentUserId = UserContext.getUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+        
+        if (!productVO.getUserId().equals(currentUserId)) {
+            throw new RuntimeException("无权更新此商品");
+        }
+        
         int result = productMapper.update(product);
         return result > 0;
     }
 
     @Override
     public Boolean deleteProduct(Long id) {
+        // 获取商品信息
+        ProductVO productVO = productMapper.selectVOById(id);
+        if (productVO == null) {
+            throw new RuntimeException(ResultCode.PRODUCT_NOT_EXIST.getMessage());
+        }
+        
+        // 检查权限：只有商品的所有者才能删除
+        Long currentUserId = UserContext.getUserId();
+        if (!productVO.getUserId().equals(currentUserId)) {
+            throw new RuntimeException("无权删除此商品");
+        }
+        
         int result = productMapper.deleteById(id);
         return result > 0;
     }

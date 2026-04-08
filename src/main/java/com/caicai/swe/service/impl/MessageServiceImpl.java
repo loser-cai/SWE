@@ -23,7 +23,7 @@ public class MessageServiceImpl implements MessageService {
     private MessageMapper messageMapper;
 
     @Override
-    public MessageVO sendMessage(MessageSendDTO dto, Long currentUserId) {
+        public MessageVO sendMessage(MessageSendDTO dto, Long currentUserId) {
         Message message = new Message();
         message.setSenderId(currentUserId);
         message.setReceiverId(dto.getReceiverId());
@@ -33,10 +33,10 @@ public class MessageServiceImpl implements MessageService {
         message.setCreateTime(LocalDateTime.now());
         message.setUpdateTime(LocalDateTime.now());
         messageMapper.insert(message);
-
+    
+        // 返回新插入的消息
         return getChatMessages(dto.getReceiverId(), currentUserId, 1, 1).getRecords().get(0);
     }
-
     @Override
     public PageResult<MessageVO> getChatMessages(Long otherUserId, Long currentUserId, Integer page, Integer size) {
         Integer offset = (page - 1) * size;

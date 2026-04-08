@@ -31,24 +31,31 @@ public interface MessageMapper extends BaseMapper<Message> {
                                     @Param("size") Integer size);
 
     @Select("SELECT " +
-            "IF(m.sender_id = #{currentUserId}, m.receiver_id, m.sender_id) as otherUserId, " +
-            "IF(m.sender_id = #{currentUserId}, u2.username, u1.username) as otherUsername, " +
-            "IF(m.sender_id = #{currentUserId}, u2.nickname, u1.nickname) as otherNickname, " +
-            "IF(m.sender_id = #{currentUserId}, u2.avatar, u1.avatar) as otherAvatar, " +
+            "otherUserId, " +
+            "u.username as otherUsername, " +
+            "u.nickname as otherNickname, " +
+            "u.avatar as otherAvatar, " +
             "m.content as lastMessageContent, " +
             "m.create_time as lastMessageTime, " +
-            "SUM(CASE WHEN m.receiver_id = #{currentUserId} AND m.is_read = false THEN 1 ELSE 0 END) as unreadCount, " +
+            "conversations.unreadCount, " +
             "m.product_id as productId, " +
             "p.title as productTitle, " +
             "p.price as productPrice, " +
             "p.images as productImages " +
-            "FROM message m " +
-            "LEFT JOIN user u1 ON m.sender_id = u1.id " +
-            "LEFT JOIN user u2 ON m.receiver_id = u2.id " +
+            "FROM (" +
+            "  SELECT " +
+            "  IF(m.sender_id = #{currentUserId}, m.receiver_id, m.sender_id) as otherUserId, " +
+            "  MAX(m.create_time) as lastMessageTime, " +
+            "  SUM(CASE WHEN m.receiver_id = #{currentUserId} AND m.is_read = false THEN 1 ELSE 0 END) as unreadCount " +
+            "  FROM message m " +
+            "  WHERE m.sender_id = #{currentUserId} OR m.receiver_id = #{currentUserId} " +
+            "  GROUP BY IF(m.sender_id = #{currentUserId}, m.receiver_id, m.sender_id)" +
+            ") conversations " +
+            "INNER JOIN message m ON conversations.otherUserId = IF(m.sender_id = #{currentUserId}, m.receiver_id, m.sender_id) " +
+            "  AND m.create_time = conversations.lastMessageTime " +
+            "LEFT JOIN user u ON conversations.otherUserId = u.id " +
             "LEFT JOIN product p ON m.product_id = p.id " +
-            "WHERE m.sender_id = #{currentUserId} OR m.receiver_id = #{currentUserId} " +
-            "GROUP BY otherUserId, otherUsername, otherNickname, otherAvatar, lastMessageContent, lastMessageTime, productId, productTitle, productPrice, productImages " +
-            "ORDER BY lastMessageTime DESC " +
+            "ORDER BY conversations.lastMessageTime DESC " +
             "LIMIT #{offset}, #{size}")
     List<MessageConversationVO> getConversations(@Param("currentUserId") Long currentUserId,
                                                  @Param("offset") Integer offset,

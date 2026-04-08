@@ -1,18 +1,7 @@
 <template>
   <div class="profile">
     <el-container>
-      <el-header>
-        <div class="header-content">
-          <router-link to="/" class="logo">
-            <h1>校园二手交易</h1>
-          </router-link>
-          <div class="header-right">
-            <router-link to="/products" class="nav-link">商品列表</router-link>
-            <router-link to="/products/publish" class="nav-link">发布商品</router-link>
-          </div>
-        </div>
-      </el-header>
-
+      <NavBar />
       <el-main>
         <div class="profile-container">
           <div class="user-info">
@@ -69,6 +58,7 @@ import { ElMessage } from 'element-plus'
 import { favoriteApi } from '@/api/favorite'
 import { productApi } from '@/api/product'
 import { useUserStore } from '@/stores/user'
+import NavBar from '@/components/NavBar.vue'
 import type { ProductVO } from '@/types/product'
 
 const router = useRouter()

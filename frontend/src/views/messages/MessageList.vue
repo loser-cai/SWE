@@ -1,21 +1,7 @@
 <template>
   <div class="message-list">
     <el-container>
-      <el-header>
-        <div class="header-content">
-          <router-link to="/" class="logo">
-            <h1>校园二手交易</h1>
-          </router-link>
-          <div class="header-right">
-            <el-badge :value="unreadCount" :hidden="unreadCount === 0" class="message-badge">
-              <router-link to="/messages" class="nav-link active">消息</router-link>
-            </el-badge>
-            <router-link to="/products/publish" class="nav-link">发布商品</router-link>
-            <router-link to="/profile" class="nav-link">个人中心</router-link>
-          </div>
-        </div>
-      </el-header>
-
+      <NavBar />
       <el-main>
         <div class="message-container">
           <div class="message-header">
@@ -66,6 +52,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getConversations, getUnreadCount, markAsRead } from '@/api/message'
 import type { MessageConversation } from '@/types/message'
+import NavBar from '@/components/NavBar.vue'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()

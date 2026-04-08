@@ -1,18 +1,7 @@
 <template>
   <div class="product-publish">
     <el-container>
-      <el-header>
-        <div class="header-content">
-          <router-link to="/" class="logo">
-            <h1>校园二手交易</h1>
-          </router-link>
-          <div class="header-right">
-            <router-link to="/products" class="nav-link">商品列表</router-link>
-            <router-link to="/profile" class="nav-link">个人中心</router-link>
-          </div>
-        </div>
-      </el-header>
-
+      <NavBar />
       <el-main>
         <div class="publish-container">
           <h2>{{ isEditMode ? '编辑商品' : '发布商品' }}</h2>
@@ -76,6 +65,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { productApi } from '@/api/product'
 import { useAppStore } from '@/stores/app'
+import NavBar from '@/components/NavBar.vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { ProductPublishDTO } from '@/types/product'
 

@@ -1,34 +1,7 @@
 <template>
   <div class="home">
     <el-container>
-      <el-header>
-        <div class="header-content">
-          <div class="logo">
-            <h1>校园二手交易</h1>
-          </div>
-          <div class="header-right">
-            <el-input
-              v-model="searchKeyword"
-              placeholder="搜索商品"
-              prefix-icon="Search"
-              @keyup.enter="handleSearch"
-              style="width: 300px; margin-right: 20px"
-            />
-            <router-link to="/products" class="nav-link">商品列表</router-link>
-            <router-link v-if="userStore.isLoggedIn()" to="/products/publish" class="nav-link">
-              发布商品
-            </router-link>
-            <router-link v-if="userStore.isLoggedIn()" to="/profile" class="nav-link">
-              个人中心
-            </router-link>
-            <router-link v-else to="/login" class="nav-link">登录</router-link>
-            <router-link v-if="!userStore.isLoggedIn()" to="/register" class="nav-link">
-              注册
-            </router-link>
-            <el-button v-else @click="handleLogout" type="danger" size="small">退出</el-button>
-          </div>
-        </div>
-      </el-header>
+      <NavBar />
 
       <el-main>
         <div class="banner">
@@ -87,28 +60,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import { productApi } from '@/api/product'
-import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
+import NavBar from '@/components/NavBar.vue'
 import type { ProductVO } from '@/types/product'
 
 const router = useRouter()
-const userStore = useUserStore()
 const appStore = useAppStore()
 
-const searchKeyword = ref('')
 const latestProducts = ref<ProductVO[]>([])
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
   return `${date.getMonth() + 1}-${date.getDate()}`
-}
-
-const handleSearch = () => {
-  if (searchKeyword.value.trim()) {
-    router.push({ path: '/search', query: { keyword: searchKeyword.value } })
-  }
 }
 
 const handleCategoryClick = (categoryId: number) => {
@@ -117,11 +81,6 @@ const handleCategoryClick = (categoryId: number) => {
 
 const goToDetail = (id: number) => {
   router.push(`/products/${id}`)
-}
-
-const handleLogout = () => {
-  userStore.logout()
-  ElMessage.success('已退出登录')
 }
 
 const loadLatestProducts = async () => {

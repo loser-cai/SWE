@@ -1,29 +1,7 @@
 <template>
   <div class="product-list">
     <el-container>
-      <el-header>
-        <div class="header-content">
-          <router-link to="/" class="logo">
-            <h1>校园二手交易</h1>
-          </router-link>
-          <div class="header-right">
-            <el-input
-              v-model="searchKeyword"
-              placeholder="搜索商品"
-              prefix-icon="Search"
-              @keyup.enter="handleSearch"
-              style="width: 300px; margin-right: 20px"
-            />
-            <router-link v-if="userStore.isLoggedIn()" to="/products/publish" class="nav-link">
-              发布商品
-            </router-link>
-            <router-link v-if="userStore.isLoggedIn()" to="/profile" class="nav-link">
-              个人中心
-            </router-link>
-            <router-link v-else to="/login" class="nav-link">登录</router-link>
-          </div>
-        </div>
-      </el-header>
+      <NavBar />
 
       <el-main>
         <div class="filter-bar">
@@ -81,16 +59,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { productApi } from '@/api/product'
-import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
+import NavBar from '@/components/NavBar.vue'
 import type { ProductVO } from '@/types/product'
 
 const router = useRouter()
 const route = useRoute()
-const userStore = useUserStore()
 const appStore = useAppStore()
 
 const loading = ref(false)
@@ -104,11 +81,6 @@ const selectedCategory = ref<number | null>(null)
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
   return `${date.getMonth() + 1}-${date.getDate()}`
-}
-
-const handleSearch = () => {
-  currentPage.value = 1
-  loadProducts()
 }
 
 const handleFilterChange = () => {

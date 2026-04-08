@@ -20,7 +20,7 @@ export interface ProductPublishDTO {
   title: string
   description?: string
   price: number
-  categoryId?: number
+  categoryId?: number | null
   images?: string
 }
 
