@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caicai.swe.mapper.FavoriteMapper">
+
+    <resultMap id="BaseResultMap" type="com.caicai.swe.entity.Favorite">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="product_id" property="productId"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectByUserIdAndProductId" resultMap="BaseResultMap">
+        SELECT * FROM favorite WHERE user_id = #{userId} AND product_id = #{productId}
+    </select>
+
+    <select id="selectProductIdsByUserId" resultType="java.lang.Long">
+        SELECT product_id FROM favorite WHERE user_id = #{userId} ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.caicai.swe.entity.Favorite" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO favorite (user_id, product_id)
+        VALUES (#{userId}, #{productId})
+    </insert>
+
+    <delete id="deleteByUserIdAndProductId">
+        DELETE FROM favorite WHERE user_id = #{userId} AND product_id = #{productId}
+    </delete>
+
+</mapper>

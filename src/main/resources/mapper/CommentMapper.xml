@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caicai.swe.mapper.CommentMapper">
+
+    <resultMap id="BaseResultMap" type="com.caicai.swe.entity.Comment">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="user_id" property="userId"/>
+        <result column="content" property="content"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="VOResultMap" type="com.caicai.swe.vo.CommentVO">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="user_avatar" property="userAvatar"/>
+        <result column="content" property="content"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="parent_username" property="parentUsername"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM comment WHERE id = #{id}
+    </select>
+
+    <select id="selectListByProductId" resultMap="VOResultMap">
+        SELECT c.*, u.username, u.avatar as user_avatar,
+               pu.username as parent_username
+        FROM comment c
+        LEFT JOIN user u ON c.user_id = u.id
+        LEFT JOIN comment pc ON c.parent_id = pc.id
+        LEFT JOIN user pu ON pc.user_id = pu.id
+        WHERE c.product_id = #{productId}
+        ORDER BY c.create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectCountByProductId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM comment WHERE product_id = #{productId}
+    </select>
+
+    <insert id="insert" parameterType="com.caicai.swe.entity.Comment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comment (product_id, user_id, content, parent_id)
+        VALUES (#{productId}, #{userId}, #{content}, #{parentId})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM comment WHERE id = #{id}
+    </delete>
+
+</mapper>
