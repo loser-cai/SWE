@@ -203,8 +203,7 @@ const goBack = () => {
 onMounted(() => {
   // 检查用户是否登录
   if (!userStore.isLoggedIn()) {
-    ElMessage.warning('请先登录')
-    router.push('/login')
+    router.replace('/login')
     return
   }
 
@@ -225,9 +224,9 @@ onMounted(() => {
 
   // 最终检查
   if (!userStore.userInfo?.id) {
-    ElMessage.error('用户信息异常，请重新登录')
+    console.error('User info missing, redirecting to login')
     userStore.logout()
-    router.push('/login')
+    router.replace('/login')
     return
   }
 

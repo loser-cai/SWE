@@ -144,8 +144,7 @@ const formatTime = (time: string) => {
 onMounted(() => {
   // 检查用户是否登录
   if (!userStore.isLoggedIn()) {
-    ElMessage.warning('请先登录')
-    router.push('/login')
+    router.replace('/login')
     return
   }
 
