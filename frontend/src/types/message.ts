@@ -6,46 +6,32 @@ export interface Message {
   content: string
   isRead: boolean
   createTime: string
-  sender?: {
-    id: number
-    username: string
-    nickname: string
-    avatar: string
-  }
-  receiver?: {
-    id: number
-    username: string
-    nickname: string
-    avatar: string
-  }
-  product?: {
-    id: number
-    title: string
-    price: number
-    images: string
-  }
+  // 发送者信息
+  senderUsername: string
+  senderNickname: string
+  senderAvatar: string
+  // 接收者信息
+  receiverUsername: string
+  receiverNickname: string
+  receiverAvatar: string
+  // 商品信息
+  productTitle: string
+  productPrice: number
+  productImages: string
 }
 
 export interface MessageConversation {
   otherUserId: number
-  otherUser: {
-    id: number
-    username: string
-    nickname: string
-    avatar: string
-  }
-  lastMessage: {
-    content: string
-    createTime: string
-  }
+  otherUsername: string
+  otherNickname: string
+  otherAvatar: string
+  lastMessageContent: string
+  lastMessageTime: string
   unreadCount: number
   productId: number | null
-  product?: {
-    id: number
-    title: string
-    price: number
-    images: string
-  }
+  productTitle: string
+  productPrice: number
+  productImages: string
 }
 
 export interface MessageSendDTO {

@@ -39,6 +39,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '发布商品', requiresAuth: true }
   },
   {
+    path: '/products/edit/:id',
+    name: 'ProductEdit',
+    component: () => import('@/views/ProductPublish.vue'),
+    meta: { title: '编辑商品', requiresAuth: true }
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/Profile.vue'),
@@ -73,6 +79,12 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   // 设置页面标题
   document.title = `${to.meta.title || '校园二手交易'} - 校园二手交易`
+
+  // 避免登录页重定向到登录页
+  if (to.path === '/login') {
+    next()
+    return
+  }
 
   // 检查是否需要登录
   if (to.meta.requiresAuth) {

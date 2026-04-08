@@ -1,17 +1,17 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import type { ApiResponse } from '@/types/api'
 import { storage } from './storage'
 import { useUserStore } from '@/stores/user'
 
 // 创建 Axios 实例
-const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+const instance = axios.create({
+  baseURL: import.meta.env?.VITE_API_BASE_URL || '',
   timeout: 10000
 })
 
 // 请求拦截器
-request.interceptors.request.use(
+instance.interceptors.request.use(
   (config) => {
     const token = storage.get('token')
     if (token) {
@@ -25,7 +25,7 @@ request.interceptors.request.use(
 )
 
 // 响应拦截器
-request.interceptors.response.use(
+instance.interceptors.response.use(
   (response) => {
     const res: ApiResponse = response.data
     if (res.code === 200) {
@@ -69,4 +69,24 @@ request.interceptors.response.use(
   }
 )
 
-export default request
+// 定义类型安全的请求方法
+export default {
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return instance.get(url, config)
+  },
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    return instance.post(url, data, config)
+  },
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    return instance.put(url, data, config)
+  },
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return instance.delete(url, config)
+  },
+  patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    return instance.patch(url, data, config)
+  },
+  request<T = any>(config: AxiosRequestConfig): Promise<T> {
+    return instance.request(config)
+  }
+}

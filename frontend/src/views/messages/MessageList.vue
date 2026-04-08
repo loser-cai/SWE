@@ -31,23 +31,23 @@
               :class="{ active: selectedUserId === conversation.otherUserId }"
               @click="selectConversation(conversation)"
             >
-              <el-avatar :size="50" :src="conversation.otherUser.avatar">
-                {{ conversation.otherUser.nickname?.charAt(0) || 'U' }}
+              <el-avatar :size="50" :src="conversation.otherAvatar">
+                {{ conversation.otherNickname?.charAt(0) || 'U' }}
               </el-avatar>
 
               <div class="conversation-info">
                 <div class="conversation-header">
-                  <span class="username">{{ conversation.otherUser.nickname || conversation.otherUser.username }}</span>
-                  <span class="time">{{ formatTime(conversation.lastMessage.createTime) }}</span>
+                  <span class="username">{{ conversation.otherNickname || conversation.otherUsername }}</span>
+                  <span class="time">{{ formatTime(conversation.lastMessageTime) }}</span>
                 </div>
 
                 <div class="conversation-preview">
-                  <span class="message-preview">{{ conversation.lastMessage.content }}</span>
+                  <span class="message-preview">{{ conversation.lastMessageContent }}</span>
                   <el-badge v-if="conversation.unreadCount > 0" :value="conversation.unreadCount" class="unread-badge" />
                 </div>
 
-                <div v-if="conversation.product" class="product-preview">
-                  <span class="product-tag">商品：{{ conversation.product.title }}</span>
+                <div v-if="conversation.productId" class="product-preview">
+                  <span class="product-tag">商品：{{ conversation.productTitle }}</span>
                 </div>
               </div>
             </div>
@@ -66,21 +66,21 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getConversations, getUnreadCount, markAsRead } from '@/api/message'
 import type { MessageConversation } from '@/types/message'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const conversations = ref<MessageConversation[]>([])
 const selectedUserId = ref<number | null>(null)
 const unreadCount = ref(0)
-let refreshTimer: NodeJS.Timeout | null = null
+let refreshTimer: number | null = null
 
 const loadConversations = async () => {
   loading.value = true
   try {
     const res = await getConversations({ page: 1, size: 50 })
-    if (res.code === 200 && res.data) {
-      conversations.value = res.data.list || []
-    }
+    conversations.value = res.records || []
   } catch (error) {
     ElMessage.error('加载消息失败')
   } finally {
@@ -91,9 +91,7 @@ const loadConversations = async () => {
 const loadUnreadCount = async () => {
   try {
     const res = await getUnreadCount()
-    if (res.code === 200) {
-      unreadCount.value = res.data || 0
-    }
+    unreadCount.value = res || 0
   } catch (error) {
     // 忽略错误
   }

@@ -66,12 +66,24 @@
               </div>
 
               <div class="product-actions">
-                <el-button type="primary" size="large" @click="handleContact">
-                  联系卖家
-                </el-button>
-                <el-button size="large" @click="handleFavorite">
-                  {{ isFavorited ? '已收藏' : '收藏' }}
-                </el-button>
+                <!-- 发布者显示的按钮 -->
+                <template v-if="isOwner">
+                  <el-button type="primary" size="large" @click="handleEdit" icon="Edit">
+                    编辑商品
+                  </el-button>
+                  <el-button type="danger" size="large" @click="handleDelete" icon="Delete">
+                    删除商品
+                  </el-button>
+                </template>
+                <!-- 买家显示的按钮 -->
+                <template v-else>
+                  <el-button type="primary" size="large" @click="handleContact">
+                    联系卖家
+                  </el-button>
+                  <el-button size="large" @click="handleFavorite">
+                    {{ isFavorited ? '已收藏' : '收藏' }}
+                  </el-button>
+                </template>
               </div>
             </div>
           </div>
@@ -118,9 +130,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { productApi } from '@/api/product'
 import { commentApi, type CommentAddDTO, type CommentVO } from '@/api/comment'
 import { favoriteApi } from '@/api/favorite'
@@ -137,6 +149,11 @@ const comments = ref<CommentVO[]>([])
 const commentContent = ref('')
 const commentLoading = ref(false)
 const isFavorited = ref(false)
+
+// 判断当前用户是否是商品发布者
+const isOwner = computed(() => {
+  return userStore.isLoggedIn() && product.value && userStore.userInfo?.id === product.value.userId
+})
 
 const formatDateTime = (dateStr: string) => {
   const date = new Date(dateStr)
@@ -187,6 +204,36 @@ const handleFavorite = async () => {
     }
   } catch (error) {
     console.error('操作失败:', error)
+  }
+}
+
+const handleEdit = () => {
+  if (!product.value) return
+  router.push(`/products/edit/${product.value.id}`)
+}
+
+const handleDelete = async () => {
+  if (!product.value) return
+
+  try {
+    await ElMessageBox.confirm(
+      '确定要删除这个商品吗？此操作不可恢复。',
+      '删除确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    await productApi.delete(product.value.id)
+    ElMessage.success('删除成功')
+    router.push('/')
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      console.error('删除失败:', error)
+      ElMessage.error('删除失败')
+    }
   }
 }
 

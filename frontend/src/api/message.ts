@@ -19,18 +19,12 @@ export interface ChatMessagesParams {
 
 // 获取会话列表
 export const getConversations = (params: ConversationListParams = {}) => {
-  return request<PageResult<MessageConversation>>({
-    url: '/message/conversations',
-    method: 'get',
-    params
-  })
+  return request.get<PageResult<MessageConversation>>('/message/conversations', { params })
 }
 
 // 获取与某个用户的聊天记录
 export const getChatMessages = (params: ChatMessagesParams) => {
-  return request<PageResult<Message>>({
-    url: `/message/conversations/${params.otherUserId}`,
-    method: 'get',
+  return request.get<PageResult<Message>>(`/message/conversations/${params.otherUserId}`, {
     params: {
       page: params.page,
       size: params.size
@@ -40,35 +34,20 @@ export const getChatMessages = (params: ChatMessagesParams) => {
 
 // 发送消息
 export const sendMessage = (data: MessageSendDTO) => {
-  return request<Message>({
-    url: '/message',
-    method: 'post',
-    data
-  })
+  return request.post<Message>('/message', data)
 }
 
 // 标记消息为已读
 export const markAsRead = (otherUserId: number) => {
-  return request({
-    url: '/message/read',
-    method: 'post',
-    data: { otherUserId }
-  })
+  return request.post('/message/read', null, { params: { otherUserId } })
 }
 
 // 删除会话
 export const deleteConversation = (otherUserId: number) => {
-  return request({
-    url: '/message/conversation',
-    method: 'delete',
-    params: { otherUserId }
-  })
+  return request.delete('/message/conversation', { params: { otherUserId } })
 }
 
 // 获取未读消息数量
 export const getUnreadCount = () => {
-  return request<number>({
-    url: '/message/unread/count',
-    method: 'get'
-  })
+  return request.get<number>('/message/unread/count')
 }

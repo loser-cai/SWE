@@ -28,14 +28,14 @@
               v-for="message in messages"
               :key="message.id"
               class="message-item"
-              :class="{ 'is-self': message.senderId === currentUserId }"
+              :class="{ 'is-self': Number(message.senderId) === Number(currentUserId) }"
             >
-              <el-avatar :size="40" :src="message.sender?.avatar">
-                {{ message.sender?.nickname?.charAt(0) || 'U' }}
+              <el-avatar :size="40" :src="Number(message.senderId) === Number(currentUserId) ? userStore.userInfo?.avatar : message.senderAvatar">
+                {{ Number(message.senderId) === Number(currentUserId) ? (userStore.userInfo?.nickname?.charAt(0) || 'U') : (message.senderNickname?.charAt(0) || 'U') }}
               </el-avatar>
               <div class="message-content">
                 <div class="message-header">
-                  <span class="sender-name">{{ message.sender?.nickname || message.sender?.username }}</span>
+                  <span class="sender-name">{{ Number(message.senderId) === Number(currentUserId) ? (userStore.userInfo?.nickname || userStore.userInfo?.username || '我') : (message.senderNickname || message.senderUsername || '对方') }}</span>
                   <span class="message-time">{{ formatTime(message.createTime) }}</span>
                 </div>
                 <div class="message-text">{{ message.content }}</div>
@@ -89,9 +89,11 @@ const messagesContainer = ref<HTMLElement>()
 const otherUser = ref<any>(null)
 const product = ref<any>(null)
 const unreadCount = ref(0)
-let refreshTimer: NodeJS.Timeout | null = null
+let refreshTimer: number | null = null
 
-const currentUserId = computed(() => userStore.userInfo?.id || 0)
+const currentUserId = computed(() => {
+  return userStore.userInfo?.id || 0
+})
 
 const loadMessages = async () => {
   loading.value = true
@@ -101,21 +103,35 @@ const loadMessages = async () => {
       page: 1,
       size: 100
     })
-    messages.value = res.list || []
-    // 获取对方用户信息和商品信息
-    if (messages.value.length > 0) {
-      const lastMessage = messages.value[messages.value.length - 1]
-      otherUser.value = lastMessage.senderId === currentUserId.value ? lastMessage.receiver : lastMessage.sender
-      product.value = lastMessage.product
+    // 后端返回的是按时间降序排列（最新的在前），需要反转使最新的在底部
+        messages.value = (res.records || []).reverse()
+        
+        // 获取对方用户信息和商品信息
+        if (messages.value.length > 0) {
+          const firstMessage = messages.value[0]
+          const isSelfSender = firstMessage.senderId === currentUserId.value
+          otherUser.value = {
+            id: isSelfSender ? firstMessage.receiverId : firstMessage.senderId,
+            username: isSelfSender ? firstMessage.receiverUsername : firstMessage.senderUsername,
+            nickname: isSelfSender ? firstMessage.receiverNickname : firstMessage.senderNickname,
+            avatar: isSelfSender ? firstMessage.receiverAvatar : firstMessage.senderAvatar
+          }
+          product.value = {
+            id: firstMessage.productId,
+            title: firstMessage.productTitle,
+            price: firstMessage.productPrice,
+            images: firstMessage.productImages
+          }
+        }
+        
+        scrollToBottom()
+      } catch (error) {
+        console.error('加载消息失败:', error)
+        ElMessage.error('加载消息失败')
+      } finally {
+        loading.value = false
+      }
     }
-    scrollToBottom()
-  } catch (error) {
-    ElMessage.error('加载消息失败')
-  } finally {
-    loading.value = false
-  }
-}
-
 const sendMessage = async () => {
   if (!newMessage.value.trim()) {
     ElMessage.warning('请输入消息内容')
@@ -124,7 +140,7 @@ const sendMessage = async () => {
 
   sending.value = true
   try {
-    const res = await sendMessageAPI({
+    await sendMessageAPI({
       receiverId: otherUserId.value,
       productId: productId.value,
       content: newMessage.value.trim()
@@ -164,6 +180,11 @@ const formatTime = (time: string) => {
   const diff = now.getTime() - date.getTime()
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
+  // 处理无效时间或未来时间
+  if (isNaN(date.getTime()) || days < 0) {
+    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+  }
+
   if (days === 0) {
     return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   } else if (days === 1) {
@@ -183,6 +204,29 @@ onMounted(() => {
   // 检查用户是否登录
   if (!userStore.isLoggedIn()) {
     ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+
+  // 检查用户信息是否存在
+  if (!userStore.userInfo) {
+    try {
+      const userInfoStr = localStorage.getItem('userInfo')
+      if (userInfoStr) {
+        const userInfo = JSON.parse(userInfoStr)
+        if (userInfo && userInfo.id) {
+          userStore.setUserInfo(userInfo)
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load user info:', e)
+    }
+  }
+
+  // 最终检查
+  if (!userStore.userInfo?.id) {
+    ElMessage.error('用户信息异常，请重新登录')
+    userStore.logout()
     router.push('/login')
     return
   }

@@ -91,6 +91,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { productApi } from '@/api/product'
 import { useUserStore } from '@/stores/user'
 import type { ProductVO } from '@/types/product'

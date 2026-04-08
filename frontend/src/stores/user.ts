@@ -4,8 +4,8 @@ import type { UserVO } from '@/types/user'
 import { storage } from '@/utils/storage'
 
 export const useUserStore = defineStore('user', () => {
-  const userInfo = ref<UserVO | null>(storage.get('userInfo') || null)
-  const token = ref<string>(storage.get('token') || '')
+  const userInfo = ref<UserVO | null>(storage.get('userInfo') as UserVO | null || null)
+  const token = ref<string>(storage.get('token') as string || '')
 
   const setUserInfo = (info: UserVO) => {
     userInfo.value = info

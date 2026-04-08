@@ -60,8 +60,17 @@ const handleLogin = async () => {
       loading.value = true
       try {
         const result = await userApi.login(form)
+        console.log('Login result:', result)
+        console.log('User info:', result.user)
         userStore.setUserInfo(result.user)
         userStore.setToken(result.token)
+        
+        // 验证保存是否成功
+        const savedUserInfo = localStorage.getItem('userInfo')
+        const savedToken = localStorage.getItem('token')
+        console.log('Saved user info:', savedUserInfo)
+        console.log('Saved token:', savedToken)
+        
         ElMessage.success('登录成功')
         router.push('/')
       } catch (error) {

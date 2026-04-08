@@ -9,4 +9,6 @@ export interface ApiResponse<T = any> {
 export interface PageResult<T = any> {
   total: number
   records: T[]
+  page: number
+  size: number
 }

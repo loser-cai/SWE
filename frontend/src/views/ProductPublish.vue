@@ -15,7 +15,7 @@
 
       <el-main>
         <div class="publish-container">
-          <h2>发布商品</h2>
+          <h2>{{ isEditMode ? '编辑商品' : '发布商品' }}</h2>
           <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
             <el-form-item label="商品标题" prop="title">
               <el-input v-model="form.title" placeholder="请输入商品标题" />
@@ -60,9 +60,8 @@
 
             <el-form-item>
               <el-button type="primary" @click="handleSubmit" :loading="loading">
-                发布商品
-              </el-button>
-              <el-button @click="handleCancel">取消</el-button>
+                            {{ isEditMode ? '更新商品' : '发布商品' }}
+                          </el-button>              <el-button @click="handleCancel">取消</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -72,8 +71,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { productApi } from '@/api/product'
 import { useAppStore } from '@/stores/app'
@@ -81,9 +80,13 @@ import type { FormInstance, FormRules } from 'element-plus'
 import type { ProductPublishDTO } from '@/types/product'
 
 const router = useRouter()
+const route = useRoute()
 const appStore = useAppStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
+
+// 判断是否是编辑模式
+const isEditMode = computed(() => !!route.params.id)
 
 const form = reactive<ProductPublishDTO>({
   title: '',
@@ -92,6 +95,27 @@ const form = reactive<ProductPublishDTO>({
   categoryId: undefined,
   images: ''
 })
+
+// 加载商品信息（编辑模式）
+const loadProduct = async () => {
+  if (!isEditMode.value) return
+  
+  try {
+    const productId = Number(route.params.id)
+    const product = await productApi.getDetail(productId)
+    
+    // 填充表单
+    form.title = product.title
+    form.description = product.description || ''
+    form.price = product.price
+    form.categoryId = product.categoryId
+    form.images = product.images || ''
+  } catch (error) {
+    console.error('加载商品失败:', error)
+    ElMessage.error('加载商品失败')
+    router.back()
+  }
+}
 
 const rules: FormRules = {
   title: [
@@ -109,11 +133,23 @@ const handleSubmit = async () => {
     if (valid) {
       loading.value = true
       try {
-        const productId = await productApi.publish(form)
-        ElMessage.success('发布成功')
-        router.push(`/products/${productId}`)
+        if (isEditMode.value) {
+          // 编辑模式
+          const productId = Number(route.params.id)
+          await productApi.update({
+            id: productId,
+            ...form
+          })
+          ElMessage.success('更新成功')
+          router.push(`/products/${productId}`)
+        } else {
+          // 发布模式
+          const productId = await productApi.publish(form)
+          ElMessage.success('发布成功')
+          router.push(`/products/${productId}`)
+        }
       } catch (error) {
-        console.error('发布失败:', error)
+        console.error(isEditMode.value ? '更新失败:' : '发布失败:', error)
       } finally {
         loading.value = false
       }
@@ -124,6 +160,10 @@ const handleSubmit = async () => {
 const handleCancel = () => {
   router.back()
 }
+
+onMounted(() => {
+  loadProduct()
+})
 </script>
 
 <style scoped lang="scss">
