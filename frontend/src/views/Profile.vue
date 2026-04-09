@@ -17,7 +17,33 @@
             <el-button type="danger" @click="handleLogout">退出登录</el-button>
           </div>
 
-          <el-tabs v-model="activeTab" class="profile-tabs">
+          <el-tabs v-model="activeTab" class="profile-tabs" @tab-change="handleTabChange">
+            <el-tab-pane label="我发布的" name="published">
+              <div v-loading="loading" class="product-grid">
+                <div
+                  v-for="product in publishedProducts"
+                  :key="product.id"
+                  class="product-card"
+                  @click="goToDetail(product.id)"
+                >
+                  <div class="product-image">
+                    <img
+                      v-if="product.images"
+                      :src="product.images.split(',')[0]"
+                      :alt="product.title"
+                    />
+                    <div v-else class="no-image">暂无图片</div>
+                  </div>
+                  <div class="product-info">
+                    <h4 class="product-title">{{ product.title }}</h4>
+                    <div class="product-price">¥{{ product.price }}</div>
+                  </div>
+                </div>
+              </div>
+              <div v-if="!loading && publishedProducts.length === 0" class="empty-state">
+                <el-empty description="暂未发布任何商品" />
+              </div>
+            </el-tab-pane>
             <el-tab-pane label="我的收藏" name="favorites">
               <div v-loading="loading" class="product-grid">
                 <div
@@ -65,7 +91,8 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const loading = ref(false)
-const activeTab = ref('favorites')
+const activeTab = ref('published')
+const publishedProducts = ref<ProductVO[]>([])
 const favoriteProducts = ref<ProductVO[]>([])
 
 const handleLogout = () => {
@@ -76,6 +103,31 @@ const handleLogout = () => {
 
 const goToDetail = (id: number) => {
   router.push(`/products/${id}`)
+}
+
+const handleTabChange = (tabName: any) => {
+  if (tabName === 'published') {
+    loadPublished()
+  } else if (tabName === 'favorites') {
+    loadFavorites()
+  }
+}
+
+const loadPublished = async () => {
+  if (!userStore.userInfo?.id) return
+  loading.value = true
+  try {
+    const result = await productApi.getList({
+      page: 1,
+      size: 100, // 假设一页显示完
+      userId: userStore.userInfo.id
+    })
+    publishedProducts.value = result.records
+  } catch (error) {
+    console.error('加载已发布商品失败:', error)
+  } finally {
+    loading.value = false
+  }
 }
 
 const loadFavorites = async () => {
@@ -98,7 +150,7 @@ const loadFavorites = async () => {
 }
 
 onMounted(() => {
-  loadFavorites()
+  loadPublished()
 })
 </script>
 
