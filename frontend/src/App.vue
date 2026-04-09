@@ -43,6 +43,23 @@ body {
 
 #app {
   min-height: 100vh;
+  width: 100%;
+}
+
+.el-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.el-header {
+  width: 100%;
+  padding: 0 20px;
+}
+
+.el-main {
+  width: 100%;
+  padding: 30px 20px;
 }
 
 /* 自定义滚动条 */

@@ -1,6 +1,6 @@
 <template>
   <div class="message-list">
-    <el-container>
+    <el-container direction="vertical">
       <NavBar />
       <el-main>
         <div class="message-container">
@@ -225,12 +225,13 @@ onUnmounted(() => {
 }
 
 .el-main {
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
   padding: 30px 20px;
 }
 
 .message-container {
+  max-width: 800px;
+  margin: 0 auto;
   background: white;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);

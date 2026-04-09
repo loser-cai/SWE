@@ -1,6 +1,6 @@
 <template>
   <div class="product-publish">
-    <el-container>
+    <el-container direction="vertical">
       <NavBar />
       <el-main>
         <div class="publish-container">
@@ -217,12 +217,13 @@ onMounted(() => {
 }
 
 .el-main {
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
   padding: 30px 20px;
 }
 
 .publish-container {
+  max-width: 800px;
+  margin: 0 auto;
   background: white;
   padding: 48px;
   border-radius: 20px;

@@ -1,12 +1,12 @@
 <template>
   <div class="product-list">
-    <el-container>
+    <el-container direction="vertical">
       <NavBar />
 
       <el-main>
         <div class="filter-bar">
           <el-select v-model="selectedCategory" placeholder="选择分类" clearable @change="handleFilterChange">
-            <el-option label="全部分类" :value="null" />
+            <el-option label="全部分类" :value="''" />
             <el-option
               v-for="category in appStore.categories"
               :key="category.id"
@@ -238,6 +238,7 @@ onMounted(() => {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  justify-items: center;
   gap: 24px;
   margin-bottom: 30px;
 }
@@ -245,6 +246,8 @@ onMounted(() => {
 .product-card {
   background: white;
   border-radius: 16px;
+  width: 100%;
+  max-width: 320px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   cursor: pointer;

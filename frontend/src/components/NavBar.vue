@@ -6,11 +6,11 @@
       </router-link>
       <div class="header-right">
         <el-input
+          class="search-input"
           v-model="searchKeyword"
           placeholder="搜索商品"
           prefix-icon="Search"
           @keyup.enter="handleSearch"
-          style="width: 300px; margin-right: 20px"
         />
         <router-link to="/products" class="nav-link">商品列表</router-link>
         <router-link to="/messages" class="nav-link">消息中心</router-link>
@@ -54,6 +54,9 @@ const handleSearch = () => {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
   }
 
   .logo {
@@ -74,7 +77,18 @@ const handleSearch = () => {
   .header-right {
     display: flex;
     align-items: center;
-    gap: 24px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+    flex: 1 1 0;
+
+    :deep(.search-input) {
+      width: 100%;
+      max-width: 320px;
+      flex: 1 1 240px;
+      min-width: 180px;
+    }
 
     .nav-link {
       text-decoration: none;

@@ -1,6 +1,6 @@
 <template>
   <div class="product-detail">
-    <el-container>
+    <el-container direction="vertical">
       <NavBar />
 
       <el-main v-loading="loading">
@@ -308,12 +308,14 @@ onMounted(async () => {
 }
 
 .el-main {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   padding: 30px 20px;
 }
 
 .detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+
   .product-content {
     display: grid;
     grid-template-columns: 1fr 1fr;

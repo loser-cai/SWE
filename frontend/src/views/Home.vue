@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <el-container>
+    <el-container direction="vertical">
       <NavBar />
 
       <el-main>

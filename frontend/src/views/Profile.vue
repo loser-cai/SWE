@@ -1,6 +1,6 @@
 <template>
   <div class="profile">
-    <el-container>
+    <el-container direction="vertical">
       <NavBar />
       <el-main>
         <div class="profile-container">

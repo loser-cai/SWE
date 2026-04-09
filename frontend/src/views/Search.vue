@@ -1,6 +1,6 @@
 <template>
   <div class="search">
-    <el-container>
+    <el-container direction="vertical">
       <NavBar />
       <el-main>
         <div class="search-bar">
