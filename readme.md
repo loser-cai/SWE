@@ -1,3 +1,31 @@
+1. 开发将这两个地址改成本地地址
+frontend/vite.config.ts
+frontend/.env.development
+2. 需要暴露到公网的话 可以用打洞,需要
+https://docs.chmlfrp.net/docs/use/mapping.html#macos%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8
+```ini
+[common]
+server_addr = 39.107.237.133
+server_port = 7000
+tls_enable = false
+user = wHNk5Xe1f3ghbO2rSnvMGyb8
+token = ChmlFrpToken
+;!! 需要将后端和前端同时映射到公网
+[swe]
+type = tcp
+local_ip = 127.0.0.1
+local_port = 5173
+remote_port = 35599
+
+[swebackend]
+type = tcp
+local_ip = 127.0.0.1
+local_port = 8080
+remote_port = 35452
+
+
+```
+
 # 校园/社区二手交易vue网页端
 
 > 一个为校园和社区用户打造的便捷二手交易平台，让闲置物品流转更高效、更安全。
